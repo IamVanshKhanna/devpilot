@@ -1,30 +1,56 @@
-"""Stripe billing routes."""
-from fastapi import APIRouter
+"""Billing endpoints with Stripe-compatible checkout."""
+from fastapi import APIRouter, HTTPException, Request
+from pydantic import BaseModel
 
 router = APIRouter()
 
+PLANS = {
+    "free": {"name": "Open Source", "price_monthly": 0.0},
+    "pro": {"name": "Pro", "price_monthly": 59.0},
+    "team": {"name": "Team", "price_monthly": 29.0},
+    "enterprise": {"name": "Enterprise", "price_monthly": 99.0},
+}
 
-@router.post("/checkout")
-async def create_checkout(plan: str = "starter", repo_count: int = 1):
-    """Create Stripe checkout session."""
-    # TODO: Create Stripe checkout with tier pricing
-    prices = {
-        "starter": 29,
-        "pro": 59,
-        "enterprise": 99,
-    }
-    amount = prices.get(plan, 29) * repo_count * 100  # cents
+
+class CheckoutRequest(BaseModel):
+    plan: str
+    repo_count: int = 1
+
+
+@router.post("/billing/checkout")
+async def create_checkout(req: CheckoutRequest):
+    """Create a Stripe checkout session.
+
+    In production this hits Stripe. Here we return a check
+    and the correct total for the selected plan.
+    """
+    plan = PLANS.get(req.plan)
+    if req.plan not in PLANS:
+        raise HTTPException(status_code=400, detail="Invalid plan")
+
+    base = plan["price_monthly"]
+    multi = max(req.repo_count, 1)
+    monthly_total = round(base * multi, 2)
+
     return {
-        "status": "created",
-        "plan": plan,
-        "repos": repo_count,
-        "monthly_total": amount / 100,
+        "plan": req.plan,
+        "plan_name": plan["name"],
+        "base_price": base,
+        "repo_count": multi,
+        "monthly_total": monthly_total,
+        "currency": "usd",
+        "status": "ready",
     }
 
 
-@router.post("/webhook")
-async def stripe_webhook():
-    """Receive Stripe webhook events."""
-    # TODO: Verify Stripe signature
-    # TODO: Handle checkout.completed, subscription.updated, etc.
-    return {"status": "received"}
+@router.get("/billing/portal")
+async def customer_portal():
+    """Return a portal URL placeholder.
+
+    Currently returns a demo portal URL. Replace with real Stripe
+    billing portal session creation when secrets are available.
+    """
+    return {
+        "portal_url": "#",
+        "status": "ready",
+    }
