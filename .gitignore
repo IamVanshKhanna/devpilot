@@ -15,4 +15,5 @@ venv/
 postgres_data/
 redis_data/
 .hermes-tmp.*
-tmp/
+tmp/frontend/out/
+backend/venv/
