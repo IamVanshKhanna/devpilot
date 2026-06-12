@@ -16,3 +16,5 @@ pydantic-settings>=2.2.0
 python-dotenv>=1.0.0
 httptools>=0.6.0
 python-multipart>=0.0.9
+PyJWT>=2.9.0
+psycopg2-binary>=2.9.0
