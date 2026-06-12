@@ -14,10 +14,15 @@ class Settings(BaseSettings):
     REDIS_URL: str = "redis://redis:6379"
 
     # GitHub App
-    G...ne
+    GH_APP_ID: str = ""
+    GH_CLIENT_ID: str = ""
+    GH_CLIENT_SECRET: str = ""
+    GH_PRIVATE_KEY: str = ""
+    GH_WEBHOOK_SECRET: str = ""
 
-    # AI
+    # AI / LLM
     OPENROUTER_API_KEY: str = ""
+    NVIDIA_API_KEY: str = ""
 
     # Stripe
     STRIPE_SECRET_KEY: str = ""
