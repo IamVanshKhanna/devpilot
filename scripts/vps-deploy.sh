@@ -2,8 +2,7 @@
 set -euo pipefail
 
 # vps-deploy.sh — provision a fresh Ubuntu 24.04 VPS for DevPilot
-# Assumes SSH access as root or a sudoer.
-# Usage: bash vps-deploy.sh root@<vps-ip> <domain|empty>
+# Usage: bash vps-deploy.sh user@host domain.example
 
 HOST="${1:?Usage: bash vps-deploy.sh user@host [domain]}"
 DOMAIN="${2:-}"
@@ -21,14 +20,20 @@ apt-get upgrade -y
 
 echo ">>> Installing dependencies"
 apt-get install -y git curl ca-certificates gnupg lsb-release
-apt-get install -y docker.io docker-compose nginx certbot python3-pip python3-venv
+apt-get install -y docker.io docker-compose nginx certbot python3-pip python3-venv ufw
 
-echo ">>> Enabling Docker"
+echo ">>> Enabling services"
 systemctl enable --now docker
 systemctl enable --now nginx
+ufw allow 22,80,443/tcp || true
+ufw --force enable || true
+
+echo ">>> Configuring firewall"
+ufw allow 22,80,443/tcp || true
+ufw --force enable || true
 
 echo ">>> Cloning repo"
-mkdir -p ${APP_DIR}
+mkdir -p "${APP_DIR}"
 if [ ! -d "${APP_DIR}/.git" ]; then
   git clone "${REPO}" "${APP_DIR}"
 fi
@@ -38,16 +43,15 @@ git checkout main
 git reset --hard origin/main
 
 echo ">>> Setting up backend venv"
-cd "${APP_DIR}/backend"
-python3 -m venv venv
-source venv/bin/activate
+mkdir -p "${APP_DIR}/backend/venv"
+python3 -m venv "${APP_DIR}/backend/venv"
+source "${APP_DIR}/backend/venv/bin/activate"
 pip install --upgrade pip
-pip install -r requirements.txt
+pip install -r "${APP_DIR}/backend/requirements.txt"
 
 echo ">>> Configuring env"
-if [ !f ".env" ]; then
-  cp .env.example .env
-  echo 'NVIDIA_API_KEY=***' >> .env
+if [ ! -f "${APP_DIR}/backend/.env" ]; then
+  cp "${APP_DIR}/backend/.env.example" "${APP_DIR}/backend/.env"
 fi
 
 echo ">>> Launching stack"
