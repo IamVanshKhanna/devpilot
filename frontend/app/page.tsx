@@ -111,7 +111,7 @@ export default function HomePage() {
             <div className="grid md:grid-cols-2 text-sm font-mono p-4">
               <div className="border-r border-white/5 pr-4 text-dp-muted leading-relaxed">
                 <div className="text-red-400/70">- async def authenticate(request):</div>
-                <div className="text-emerald-400/90">+ async def authenticate(request: Request) &amp;gt; AuthResult:</div>
+                <div className="text-emerald-400/90">+ async def authenticate(request: Request) &gt; AuthResult:</div>
                 <div className="text-dp-muted mt-2">    user = await get_user(request.headers.get(&quot;Authorization&quot;))</div>
                 <div className="text-dp-muted">    if not user:</div>
                 <div className="text-dp-muted">        raise Unauthorized()</div>
@@ -214,7 +214,7 @@ export default function HomePage() {
                 </div>
                 <div className="relative">
                   <span className="absolute left-0 text-emerald-400/40"> 2&nbsp;</span>
-                  <div className="pl-6 text-emerald-400/90">+ async def authenticate(request: Request) &amp;gt; AuthResult:</div>
+                  <div className="pl-6 text-emerald-400/90">+ async def authenticate(request: Request) &gt; AuthResult:</div>
                 </div>
                 <div className="relative">
                   <span className="absolute left-0 text-dp-muted/40"> 3&nbsp;</span>
