@@ -11,7 +11,7 @@ os.environ["GITHUB_WEBHOOK_SECRET"] = "webhook_secret_for_testing"
 os.environ["DEBUG"] = "true"
 
 from app.main import app
-from app.api.webhooks import get_settings
+from app.api.webhooks import get_settings, verify_signature
 
 client = TestClient(app)
 
@@ -30,6 +30,21 @@ def test_health():
     response = client.get("/health")
     assert response.status_code == 200
     assert response.json() == {"status": "healthy"}
+
+
+def test_webhook_signature_fails_closed():
+    """Reject missing configuration, absent signatures and tampered payloads."""
+    import hashlib
+    import hmac
+
+    body = b'{}'
+    secret = "webhook_secret_for_testing"
+    signature = "sha256=" + hmac.new(secret.encode(), body, hashlib.sha256).hexdigest()
+    assert verify_signature(body, signature, secret)
+    assert not verify_signature(body, signature, "")
+    assert not verify_signature(body, None, secret)
+    assert not verify_signature(body, "sha256=invalid", secret)
+    assert not verify_signature(b'{"tampered":true}', signature, secret)
 
 
 def test_github_webhook_ping():
