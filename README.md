@@ -16,8 +16,8 @@ These are code paths, not a claim that a public GitHub App installation, end-to-
 - Repository listing, review history and per-repository rules are placeholder endpoints. The dashboard cannot show real connected repositories from these endpoints yet.
 - The review worker is a stub; despite the Compose Redis service, a working queued review pipeline is not shown here.
 - Billing calculates plan totals but does not create a Stripe checkout session or a working customer portal. Email notifications are not shown as a working feature.
-- The landing page's installation links are placeholders, not an installation flow. Team-pattern learning and automatic convention enforcement are product goals, not demonstrated features.
-- Before any public deployment, configure and enforce GitHub webhook signature verification, validate the end-to-end GitHub App flow, add tests/CI evidence and replace the placeholder pricing and install copy.
+- The landing page labels the project as a prototype and links to its source rather than an installation flow. Team-pattern learning and automatic convention enforcement are product goals, not demonstrated features.
+- The webhook route rejects requests if its signing secret or signature is missing and checks HMAC signatures when configured. Before any public deployment, configure a real signing secret, validate the end-to-end GitHub App flow and CI, and audit the remaining product claims.
 
 ## Run locally
 
