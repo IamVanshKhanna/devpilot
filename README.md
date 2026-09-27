@@ -1,103 +1,40 @@
 # DevPilot
 
-AI-powered code review agent that installs as a GitHub App. Automatically reviews pull requests, catches bugs, enforces conventions, and learns your team's patterns.
+A pre-launch prototype for AI-assisted GitHub pull-request review. The repository contains a Next.js frontend, a FastAPI backend and local Docker Compose configuration. It is not a production-ready GitHub App or a live paid service.
 
-**Status:** Pre-launch MVP | **Stack:** Next.js + FastAPI + PostgreSQL + Redis
+## Implemented in this repository
 
-## Quick Start
+- A FastAPI webhook route for GitHub pull-request events, with a path for fetching a PR diff, requesting AI analysis and posting a GitHub review when configured with an installation token.
+- An AI review service that sends a diff to a configured model API and parses structured review comments. It returns no findings when an API key is absent or the upstream call fails.
+- A Next.js landing page and dashboard shell, plus GitHub sign-in wiring.
+- Docker Compose configuration for the frontend, backend, PostgreSQL, Redis and nginx, and a backend health route.
+
+These are code paths, not a claim that a public GitHub App installation, end-to-end review flow or deployment has been verified. There are no screenshots or live demo linked here.
+
+## Planned or incomplete
+
+- Repository listing, review history and per-repository rules are placeholder endpoints. The dashboard cannot show real connected repositories from these endpoints yet.
+- The review worker is a stub; despite the Compose Redis service, a working queued review pipeline is not shown here.
+- Billing calculates plan totals but does not create a Stripe checkout session or a working customer portal. Email notifications are not shown as a working feature.
+- The landing page's installation links are placeholders, not an installation flow. Team-pattern learning and automatic convention enforcement are product goals, not demonstrated features.
+- Before any public deployment, configure and enforce GitHub webhook signature verification, validate the end-to-end GitHub App flow, add tests/CI evidence and replace the placeholder pricing and install copy.
+
+## Run locally
 
 ```bash
-# Clone
 git clone https://github.com/IamVanshKhanna/devpilot.git
 cd devpilot
-
-# Copy env template
 cp .env.example .env
-# Edit .env with your GitHub App credentials and API keys
-
-# Start all services
+# Configure your own GitHub App and model API credentials in .env.
 docker compose up -d
-
-# Access
-# Frontend: http://localhost:3000
-# API docs: http://localhost:8000/docs
 ```
 
-## Architecture
+The frontend is configured for `http://localhost:3000` and FastAPI documentation for `http://localhost:8000/docs`. The local setup and webhook integration require your own credentials and have not been independently verified by this README.
 
-```
-GitHub PR → Webhook → FastAPI → Redis Queue → AI Worker
-                                     ↓
-                    GitHub Review API ← AI Analysis
-                                     ↓
-                         PR Comment (inline review)
-```
+## Stack
 
-## Tech Stack
-
-| Layer | Technology |
-|-------|-----------|
-| Frontend | Next.js 14 + TypeScript + Tailwind CSS |
-| Backend | Python FastAPI |
-| Database | PostgreSQL 16 |
-| Queue/Cache | Redis 7 + BullMQ |
-| AI | OpenRouter API (Claude, GPT-4, DeepSeek) |
-| Billing | Stripe |
-| Email | Resend |
-| Infra | Docker Compose |
-
-## Project Structure
-
-```
-devpilot/
-├── frontend/          # Next.js 14 app (landing page + dashboard)
-├── backend/           # FastAPI application
-│   └── app/
-│       ├── api/       # Route handlers
-│       ├── core/      # Config, security
-│       ├── models/    # SQLAlchemy models
-│       ├── services/  # Business logic
-│       └── workers/   # BullMQ consumers
-├── nginx/             # Reverse proxy config
-├── scripts/           # Deployment scripts
-└── docker-compose.yml # Local dev environment
-```
-
-## Environment Variables
-
-See `.env.example` for all required variables. Key ones:
-
-- `GITHUB_APP_ID` / `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` — GitHub App credentials
-- `GITHUB_PRIVATE_KEY` — GitHub App private key (PEM)
-- `GITHUB_WEBHOOK_SECRET` — Webhook HMAC secret
-- `OPENROUTER_API_KEY` — AI model API key
-- `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` — Billing
-- `RESEND_API_KEY` — Email notifications
-
-## Development
-
-```bash
-# Frontend
-cd frontend && npm install && npm run dev
-
-# Backend
-cd backend && python -m venv venv && source venv/bin/activate
-pip install -r requirements.txt
-uvicorn app.main:app --reload
-
-# Webhook testing (local)
-ngrok http 8000
-# Set webhook URL in GitHub App settings to ngrok URL
-```
-
-## Business
-
-- **Website:** devpilot.dev
-- **Docs:** docs.devpilot.dev
-- **Pricing:** Free (public repos) | $29-99/repo/mo (private repos)
-- **Status:** Bootstrapped, solo founder
+Next.js, TypeScript, Tailwind CSS, FastAPI, PostgreSQL, Redis, Docker Compose, and a configurable AI model API. Stripe and email settings appear in the configuration, but working billing and notifications are not claimed.
 
 ## License
 
-Core review engine: MIT
-Team-learning model & enterprise features: Proprietary
+See [LICENSE](LICENSE) for the repository's actual license terms.
