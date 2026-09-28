@@ -105,7 +105,7 @@ def test_list_repos():
 
 def test_billing_checkout():
     """Test billing checkout creation."""
-    response = client.post("/api/billing/checkout?plan=pro&repo_count=3")
+    response = client.post("/api/billing/checkout", json={"plan": "pro", "repo_count": 3})
     assert response.status_code == 200
     data = response.json()
     assert data["plan"] == "pro"

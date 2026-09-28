@@ -17,7 +17,7 @@ class CheckoutRequest(BaseModel):
     repo_count: int = 1
 
 
-@router.post("/billing/checkout")
+@router.post("/checkout")
 async def create_checkout(req: CheckoutRequest):
     """Create a Stripe checkout session.
 
